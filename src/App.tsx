@@ -2,20 +2,16 @@ import React from 'react';
 import './App.css';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Navbar from './Components/Navbar';
-import Bisection from './Pages/Bisection/Bisection';
-import FalsePosition from './Pages/False-position/Falseposition';
-import Onepoint from './Pages/One-Point/Onepoint';
-// import Test from './Pages/Bisection/Test';
-import NewtonRaphson from './Pages/Newton-Raphson/NewtonRaphson';
-
+import Bisection from './Pages/Root-of-equations/Bisection/Bisection';
+import FalsePosition from './Pages/Root-of-equations/False-position/Falseposition';
+import Onepoint from './Pages/Root-of-equations/One-Point/Onepoint';
+import NewtonRaphson from './Pages/Root-of-equations/Newton-Raphson/NewtonRaphson';
 function App() {
   return (
     <div>
       <BrowserRouter>
         <Navbar />
         <Routes>
-          {/* <Route path="/" element={<Test />} /> */}
-          <Route path="/graphical" element={''} />
           <Route path="/bisection" element={<Bisection />} />
           <Route path="/falseposition" element={<FalsePosition />} />
           <Route path="/onepoint" element={<Onepoint />} />

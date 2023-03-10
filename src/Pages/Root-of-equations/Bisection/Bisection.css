@@ -7,6 +7,11 @@
   font-family: 'Prompt', sans-serif;
 }
 
-body {
-    background: #ffbe0b;
-}
+/* form {
+  display: flex;
+  padding-bottom: 8vh;
+  width: 20vw !important;
+  position: static;
+  font-family: 'Prompt', sans-serif;
+} */
+
