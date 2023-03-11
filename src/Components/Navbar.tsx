@@ -9,7 +9,7 @@ const Navbar = () => {
                     <h2>Numerical project</h2>
                     <ul className="menu">
                         <li><Link to="/">Home</Link></li>
-                        <li><Link to="/">Root of equations</Link>
+                        <li><Link to="/rootofequation">Root of equations</Link>
                             <ul className="menu-sub">
                                 <li><Link to="/bisection">Bisection</Link></li>
                                 <li><Link to="/falseposition">False-Position</Link></li>

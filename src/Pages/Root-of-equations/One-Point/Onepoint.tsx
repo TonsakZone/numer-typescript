@@ -1,5 +1,6 @@
-import React, { useState, ChangeEvent } from "react"
-import { Button, Container, Form } from "react-bootstrap";
+import React, { useState, FormEvent } from "react"
+import '../../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import './Onepoint.css'
 import { evaluate } from 'mathjs'
 import { Table } from '@mantine/core'
 import {
@@ -31,6 +32,15 @@ type Data = {
     Xold: number;
 };
 
+interface FormValues {
+    fx: string;
+    x: number;
+}
+
+interface InputData {
+    X: string;
+}
+
 const Onepoint: React.FC = () => {
     const [data, setData] = useState<Data[]>([]);
     const [valueIter, setValueIter] = useState<number[]>([]);
@@ -38,12 +48,11 @@ const Onepoint: React.FC = () => {
     const [valueE, setValueE] = useState<number[]>([]);
     const [valueXold, setValueXold] = useState<number[]>([]);
     const [showGraph, setshowGraph] = useState<boolean>(false);
-
+    const [iterCount, setIterCount] = useState<number>(0);
     const [html, setHtml] = useState<JSX.Element | null>(null);
-    const [Equation, setEquation] = useState<string>("(x^4)-13");
+    const [equation, setEquation] = useState<string>("(x^4)-13");
     const [X, setX] = useState<number>(0);
     const [Xin, setXin]= useState<string>('0');
-    // const [Xold, setXold] = useState<string>('0');
     const print = (): JSX.Element => {
         console.log(data);
         setValueIter(data.map((x) => x.iteration));
@@ -56,7 +65,7 @@ const Onepoint: React.FC = () => {
                     <tr>
                         <th>Iteration</th>
                         <th>X</th>
-                        <th>Xold</th>
+                        <th>X0</th>
                         <th>Error</th>
                     </tr>
                 </thead>
@@ -76,7 +85,6 @@ const Onepoint: React.FC = () => {
     }
 
     const error = (xold: number, xnew: number) => Math.abs((xnew - xold) / xnew) * 100;
-
     const Calonepoint = (x: number) => {
         let fX, ea, scope, Xold=0;
         let iter = 0;
@@ -87,7 +95,7 @@ const Onepoint: React.FC = () => {
             scope = {
                 x: x,
             }
-            fX = evaluate(Equation, scope)
+            fX = evaluate(equation, scope)
             iter++;
                 ea = error(Xold, x);
                 obj = {
@@ -99,18 +107,31 @@ const Onepoint: React.FC = () => {
                 data.push(obj)
                 Xold=x;
         } while (ea > e && iter < MAX)
-        setX(x)
-        setshowGraph(true)
+        setX(obj.X);
+        setIterCount(obj.iteration);
+        console.log(X);
+        setshowGraph(true);
     }
 
     const options = {
         scales: {
             x: {
+                display: true,
                 grid: {
-                    display: false,
+                    display: true,
                 }
             },
+            y: {
+                display: true,
+                ticks: {
+                    stepSize: 0.000001,
+                    suggestedMin: 0,
+
+                }
+
+            },
         },
+
         plugins: {
             legend: {
                 display: false
@@ -118,69 +139,131 @@ const Onepoint: React.FC = () => {
         }
     }
 
-    const chartdata = {
+    const errorGraph = {
         labels: valueIter,
         datasets: [
             {
-                label: '',
+                label: 'ERROR',
                 data: valueE,
-                borderColor: 'rgb(53, 162, 235)',
-                backgroundColor: 'rgba(53, 162, 235, 0.5)',
+                borderColor: '#540804',
+                backgroundColor: '#ad2e24',
             },
         ],
     }
 
-    const inputEquation = (e: ChangeEvent<HTMLInputElement>) => {
-        const input = e.target.value
-        console.log(input)
-        setEquation(input)
+    const XGraph = {
+        labels: valueIter,
+        datasets: [
+            {
+                label: 'X',
+                data: valueX,
+                borderColor: '#540804',
+                backgroundColor: '#ad2e24',
+            },
+        ],
     }
 
-    const inputX = (e: ChangeEvent<HTMLInputElement>) => {
-        const inputX = e.target.value;
-        console.log(inputX);
-        setXin(inputX);
+
+    const inputEquation = (fx: string) => {
+        setEquation(fx)
     }
 
-    const calculateRoot = () => {
-        const xnum = parseFloat(Xin)
-        Calonepoint(xnum);
-        setHtml(print());
+    const calculateRoot = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setX(0);
+        setData([]);
+        setValueIter([]);
+        setValueX([]);
+        setValueXold([]);
+        setValueE([]);
+        setHtml(null);
+        const formData: FormValues = {
+            fx: e.currentTarget.fx.value,
+            x: e.currentTarget.x.value
+        };
+        const Xstr = formData.x.toString();
+        const inputData: InputData = { X: Xstr };
+        inputEquation(formData.fx);
+            const xnum = parseFloat(inputData.X)
+            console.log(xnum);
+            setXin(Xstr);
+            Calonepoint(xnum);
+            setHtml(print());
 
-        console.log(valueIter)
-        console.log(valueX)
+            console.log(valueIter)
+            console.log(valueX)
     }
 
-    const resetPage = () => {
-        
-    }
 
     return (
-        <Container style={{background: '#ffbe0b'}}>
-            <Form >
-                <Form.Group className="mb-3">
-                    <Form.Label>Input f(x)</Form.Label>
-                    <input type="text" id="equation" value={Equation} onChange={inputEquation} style={{ width: "20%", margin: "0 auto" }} className="form-control"></input>
-                    <Form.Label>Input x</Form.Label>
-                    <input type="number" id="X" onChange={inputX} style={{ width: "20%", margin: "0 auto" }} className="form-control"></input>
-                </Form.Group>
-                <Button variant="dark" onClick={calculateRoot}>
-                    Calculate
-                </Button>
-                <Button variant="dark" onClick={resetPage}>
-                    Reset
-                </Button>
-            </Form>
-            <br></br>
-            <h5>Answer = {X.toPrecision(3)}</h5>
-            {showGraph == true &&
-            <Container>
-                <Line options={options} data={chartdata} />
-                {html}
-            </Container>
-            }
+        <div className="onepoint">
+        <div className="container onepoint-input" style={{ margin: "2vh 2vw", padding: "20px" }}>
+            <form style={{ width: "20vw" }} onSubmit={(e) => { calculateRoot(e) }}>
+                <u><h4><b>One-Point method</b></h4></u>
+                <h6 style={{ color: "red" }}>Note: f(XL) and f(XR) result must be opposite</h6>
+                <p>Steps:</p>
+                <p>1. หาค่า X1 โดย</p>
+                <p>X1=((XL*f(XR))-(XR*f(XL)))/(f(XR)-(fXL))</p>
+                <p>2. นำค่า X1 XR ไปแทนค่าในสมการ f(x) แล้วเทียบตามเงื่อนไขดังนี้</p>
+                <p><b>หากค่า f(X1) * f(XR) {'>'} 0 ให้ค่า XR=X1</b></p>
+                <p><b>หากค่า f(X1) * f(XR) {'<'} 0 ให้ค่า XL=X1</b></p>
+                <p>3. หาค่า error</p>
+                <h5><b>Please fill the input below</b></h5>
+                <label>&nbsp; f(x)</label>
+                <br />
+                <input required type="text" name="fx" className="form-control" placeholder="Enter f(x)" style={{ borderRadius: "5px" }} defaultValue={equation} />
+                <br />
+                <label>&nbsp; X value</label>
+                <br />
+                <input required type="number" step="0.01" name="x" className="form-control" placeholder="Enter X" style={{ borderRadius: "5px" }} />
+                <br />
+                <div className="onepoint-child">
+                <div style={{ width: "100px"}}>
+                <button className="btn btn-primary btn-block" id="btn-submit" style={{ backgroundColor: "#ad2e24", borderColor: "#540804", marginBottom: "5px" }} type="submit">Calculate</button>
+                </div>
+                <div>
+            <button disabled className="btn btn-primary btn-block" id="btn-load" style={{ backgroundColor: "#ea8c55", borderColor: "#ffbe0b", marginBottom: "5px" }} onClick={()=>{}}>Load example</button>
+            </div>
+            </div>
+            </form>
 
-        </Container>
+        </div>
+        <div>
+            {showGraph === true &&
+                <div>
+                    <div className="container onepoint-answer" style={{ margin: "2vh 2vw", padding: "10px 20px", border: "3px solid #ea8c55", borderRadius: "8px" }}>
+                        <div>
+                        <h4><u><b>Input equation: {equation}</b></u></h4>
+                        <h4>Input X: {X}</h4>                        </div>
+                        <div>
+                        <h4><u><b>Result</b></u></h4>
+                        <h5>Total iteration: {iterCount}</h5>
+                        <h5 style={{ color: "white" }}><b>Answer = {X.toPrecision(4)}</b></h5>
+                        </div>
+                    </div>
+                    <div className="container onepoint-graph" style={{ margin: "2vh 2vw", padding: "20px", border: "2px solid #c75146", borderRadius: "8px" }}>
+                        <h4><u><b>Error graph</b></u></h4>
+                        <Line style={{ height: "245px", width: "490px" }} options={options} data={errorGraph} />
+                    </div>
+                    <div className="container onepoint-graph" style={{ margin: "2vh 2vw", padding: "20px", border: "2px solid #c75146", borderRadius: "8px" }}>
+                        <h4><u><b>X graph</b></u></h4>
+                        <Line style={{ height: "245px", width: "490px" }} options={options} data={XGraph} />
+                    </div>
+                </div>
+            }
+        </div>
+        <div>
+            {showGraph === true &&
+                <div>
+                    <div className="container onepoint-table" style={{ margin: "2vh 1vw", padding: "20px", border: "2px solid #c75146", borderRadius: "8px" }}>
+                        <h4><u><b>Calculate values</b></u></h4>
+                        {html}
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+        
 
     )
 }

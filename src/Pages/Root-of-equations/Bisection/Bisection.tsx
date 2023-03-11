@@ -1,8 +1,9 @@
-import React, { useState, ChangeEvent, FormEvent } from "react"
+import React, { useState, FormEvent } from "react"
 import { evaluate } from 'mathjs'
 import '../../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
-// import './Bisection.css'
+import './Bisection.css'
 import { Table } from '@mantine/core'
+import MathJax from 'react-mathjax';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -13,7 +14,7 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import { Line, Scatter } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2';
 
 
 ChartJS.register(
@@ -49,8 +50,8 @@ const Bisection: React.FC = () => {
     const [data, setData] = useState<Data[]>([]);
     const [valueIter, setValueIter] = useState<number[]>([]);
     const [valueXL, setValueXL] = useState<number[]>([]);
-    const [valueXm, setValueXm] = useState<number[]>([]);
-    const [valueXr, setValueXr] = useState<number[]>([]);
+    const [valueXM, setValueXM] = useState<number[]>([]);
+    const [valueXR, setValueXR] = useState<number[]>([]);
     const [valueE, setValueE] = useState<number[]>([]);
     const [showGraph, setshowGraph] = useState<boolean>(false);
     const [iterCount, setIterCount] = useState<number>(0);
@@ -63,8 +64,8 @@ const Bisection: React.FC = () => {
         console.log(data);
         setValueIter(data.map((x) => x.iteration));
         setValueXL(data.map((x) => x.XL));
-        setValueXm(data.map((x) => x.Xm));
-        setValueXr(data.map((x) => x.Xr));
+        setValueXM(data.map((x) => x.Xm));
+        setValueXR(data.map((x) => x.Xr));
         setValueE(data.map((x) => x.E));
         return (
             <Table>
@@ -82,10 +83,10 @@ const Bisection: React.FC = () => {
                         return (
                             <tr key={index}>
                                 <td>{element.iteration}</td>
-                                <td>{element.XL}</td>
-                                <td>{element.Xm}</td>
-                                <td>{element.Xr}</td>
-                                <td>{element.E}</td>
+                                <td>{element.XL.toPrecision(4)}</td>
+                                <td>{element.Xm.toPrecision(4)}</td>
+                                <td>{element.Xr.toPrecision(4)}</td>
+                                <td>{element.E.toPrecision(4)}</td>
                             </tr>)
                     })}
                 </tbody>
@@ -98,6 +99,7 @@ const Bisection: React.FC = () => {
         let iter = 0;
         let MAX = 50;
         const e = 0.00001;
+        // const base = 10;
         let obj: Data = { iteration: 0, XL: 0, Xm: 0, Xr: 0, E: 100 };
         do {
             xm = (xL + xr) / 2.0;
@@ -150,6 +152,12 @@ const Bisection: React.FC = () => {
             },
             y: {
                 display: true,
+                ticks: {
+                    stepSize: 0.000001,
+                    suggestedMin: 0,
+
+                }
+
             },
         },
 
@@ -159,14 +167,27 @@ const Bisection: React.FC = () => {
             }
         }
     }
-    const chartdata = {
+
+    const errorGraph = {
         labels: valueIter,
         datasets: [
             {
-                label: '',
+                label: 'ERROR',
                 data: valueE,
-                borderColor: 'rgb(53, 162, 235)',
-                backgroundColor: 'rgba(53, 162, 235, 0.5)',
+                borderColor: '#540804',
+                backgroundColor: '#ad2e24',
+            },
+        ],
+    }
+
+    const XMGraph = {
+        labels: valueIter,
+        datasets: [
+            {
+                label: 'XM',
+                data: valueXM,
+                borderColor: '#540804',
+                backgroundColor: '#ad2e24',
             },
         ],
     }
@@ -196,8 +217,8 @@ const Bisection: React.FC = () => {
         setData([]);
         setValueIter([]);
         setValueXL([]);
-        setValueXm([]);
-        setValueXr([]);
+        setValueXM([]);
+        setValueXR([]);
         setValueE([]);
         setHtml(null);
         const formData: FormValues = {
@@ -210,7 +231,7 @@ const Bisection: React.FC = () => {
         const inputData: InputData = { XL: XLstr, XR: XRstr };
         inputEquation(formData.fx);
         let check = checkinput(inputData);
-        if (check == true) {
+        if (check === true) {
             const xlnum = parseFloat(inputData.XL)
             const xrnum = parseFloat(inputData.XR)
             console.log(xlnum + " " + xrnum);
@@ -227,46 +248,85 @@ const Bisection: React.FC = () => {
     }
 
     return (
-        <div>
-            <div className="container">
-            <form id="bisection" onSubmit={(e) => { calculateRoot(e) }}>
-                <div style={{ marginBottom: "10px", marginTop: "10px", padding: "5px" }}></div>
-                <u><h5>Bisection method</h5></u>
-                <label>&nbsp; f(x)</label>
-                <br />
-                <input required type="text" name="fx" className="form-control" placeholder="Enter f(x)" style={{ borderColor: "black", borderRadius: "5px", width: "30%" }} defaultValue={equation} />
-                <br />
-                <label>&nbsp; XL value</label>
-                <br />
-                <input required type="number" step="0.01" name="xl" className="form-control" placeholder="Enter XL" style={{ borderColor: "black", borderRadius: "5px", width: "30%" }} />
-                <br />
-                <label>&nbsp; XR value</label>
-                <br />
-                <input required type="number" step="0.01" name="xr" className="form-control" placeholder="Enter XR" style={{ borderColor: "black", borderRadius: "5px", width: "30%" }} />
-                <br />
-                <button className="btn btn-primary btn-block" id="btn-submit" style={{ backgroundColor: "#ad2e24", borderColor: "#ad2e24", marginRight: "5px", marginBottom: "5px" }} type="submit">Calculate</button>
-            </form>
-            <button className="btn btn-primary btn-block" id="btn-load" style={{ backgroundColor: "#ffbe0b", borderColor: "#ffbe0b", marginRight: "5px", marginBottom: "5px" }} >Load example</button>
-            <br />
+        <div className="bisection">
+            <div className="container bisection-input" style={{ margin: "2vh 2vw", padding: "20px" }}>
+                <form style={{ width: "20vw" }} onSubmit={(e) => { calculateRoot(e) }}>
+                    <u><h4><b>Bisection method</b></h4></u>
+                    <h6 style={{ color: "red" }}>Note: f(XL) and f(XR) result must be opposite</h6>
+                    <p>Steps:</p>
+                    <p>1. หาค่า XM โดยนำ (XL+XR)/2</p>
+                    <p>2. นำค่า XM XR ไปแทนค่าในสมการ f(x) แล้วเทียบตามเงื่อนไขดังนี้</p>
+                    <p><b>หากค่า f(XM) * f(XR) {'>'} 0 ให้ค่า XR=XM</b></p>
+                    <p><b>หากค่า f(XM) * f(XR) {'<'} 0 ให้ค่า XL=XM</b></p>
+                    <p>3. หาค่า error</p>
+                    <h5><b>Please fill the input below</b></h5>
+                    <label>&nbsp; f(x)</label>
+                    <br />
+                    <input required type="text" name="fx" className="form-control" placeholder="Enter f(x)" style={{ borderRadius: "5px" }} defaultValue={equation} />
+                    <br />
+                    <label>&nbsp; XL value</label>
+                    <br />
+                    <input required type="number" step="0.01" name="xl" className="form-control" placeholder="Enter XL" style={{ borderRadius: "5px" }} />
+                    <br />
+                    <label>&nbsp; XR value</label>
+                    <br />
+                    <input required type="number" step="0.01" name="xr" className="form-control" placeholder="Enter XR" style={{ borderRadius: "5px" }} />
+                    <br />
+                    <div className="bisection-child">
+                        <div style={{ width: "100px" }}>
+                            <button className="btn btn-primary btn-block" id="btn-submit" style={{ backgroundColor: "#ad2e24", borderColor: "#540804", marginBottom: "5px" }} type="submit">Calculate</button>
+                        </div>
+                        <div>
+                            <button disabled className="btn btn-primary btn-block" id="btn-load" style={{ backgroundColor: "#ea8c55", borderColor: "#ffbe0b", marginBottom: "5px" }} onClick={() => { }}>Load example</button>
+                        </div>
+                    </div>
+                </form>
+
             </div>
-            {showGraph == true &&
             <div>
-                <div className="container">
-                    <br />
-                    <h5 style={{ color: "darkblue" }}><u><b>Equation: {equation}</b></u></h5>
-                    <h5>XL: {XL}</h5>
-                    <h5>XR: {XR}</h5>
-                    <br />
-                    <h5>Total iteration: {iterCount}</h5>
-                    <h5 style={{ color: "darkred" }}><b>Answer = {X.toPrecision(6)}</b></h5>
+                {showGraph === true &&
+                    <div>
+                        <div className="container bisection-answer" style={{ margin: "2vh 2vw", padding: "10px 20px", border: "3px solid #ea8c55", borderRadius: "8px" }}>
+                            <div>
+                            <h4><u><b>Input equation: {equation}</b></u></h4>
+                                <h4>Input XL: {XL}</h4>
+                                <h4>Input XR: {XR}</h4>
+                            </div>
+                            <div>
+                                <h4><u><b>Result</b></u></h4>
+                                <h5>Total iteration: {iterCount}</h5>
+                                <h5 style={{ color: "white" }}><b>Answer = {X.toPrecision(4)}</b></h5>
+                                <h5 style={{ color: "white" }}><b>XL = {X.toPrecision(4)}</b></h5>
+                                <h5 style={{ color: "white" }}><b>XM = {X.toPrecision(4)}</b></h5>
+                                <h5 style={{ color: "white" }}><b>XR = {X.toPrecision(4)}</b></h5>
+                            </div>
+                        </div>
+                        <div className="container bisection-graph" style={{ margin: "2vh 2vw", padding: "20px", border: "2px solid #c75146", borderRadius: "8px" }}>
+                            <h4><u><b>Error graph</b></u></h4>
+                            <Line style={{ height: "245px", width: "490px" }} options={options} data={errorGraph} />
+                        </div>
+                        {/* <div className="container bisection-graph" style={{ margin: "2vh 2vw", padding: "20px", border: "3px solid #c75146", borderRadius: "8px" }}>
+                            <h4><u><b>Error graph (log10 scale)</b></u></h4>
+                            <Line style={{ height: "245px", width: "490px" }} options={options} data={errorGraph10} />
+                        </div> */}
+                        <div className="container bisection-graph" style={{ margin: "2vh 2vw", padding: "20px", border: "2px solid #c75146", borderRadius: "8px" }}>
+                            <h4><u><b>XM graph</b></u></h4>
+                            <Line style={{ height: "245px", width: "490px" }} options={options} data={XMGraph} />
+                        </div>
                     </div>
-                    <div className="container" style={{ width: "50%", height: "50%"}}>
-                    <Line style={{ height: "40%", width: "40%"}}options={options} data={chartdata} />
-                    {html}
-                    </div>
-                </div>
-            }
+                }
             </div>
+            <div>
+                {showGraph === true &&
+                    <div>
+                        <div className="container bisection-table" style={{ margin: "2vh 1vw", padding: "20px", border: "2px solid #c75146", borderRadius: "8px" }}>
+                            <h4><u><b>Calculate values</b></u></h4>
+                            {html}
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
     )
 }
 

@@ -2,9 +2,10 @@ import React from 'react';
 import './App.css';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Navbar from './Components/Navbar';
+import Rootmainpage from './Pages/Root-of-equations/Rootmainpage';
 import Bisection from './Pages/Root-of-equations/Bisection/Bisection';
 import FalsePosition from './Pages/Root-of-equations/False-position/Falseposition';
-import Onepoint from './Pages/Root-of-equations/One-Point/Onepoint';
+// import Onepoint from './Pages/Root-of-equations/One-Point/Onepoint';
 import NewtonRaphson from './Pages/Root-of-equations/Newton-Raphson/NewtonRaphson';
 function App() {
   return (
@@ -12,9 +13,10 @@ function App() {
       <BrowserRouter>
         <Navbar />
         <Routes>
+          <Route path="/rootofequation" element={<Rootmainpage />} />
           <Route path="/bisection" element={<Bisection />} />
           <Route path="/falseposition" element={<FalsePosition />} />
-          <Route path="/onepoint" element={<Onepoint />} />
+          <Route path="/onepoint" element={''} />
           <Route path="/newtonraphson" element={<NewtonRaphson />} />
           {/* <Route path="/taylor" element={<Taylor />} /> */}
           <Route path="/secant" element={''} />

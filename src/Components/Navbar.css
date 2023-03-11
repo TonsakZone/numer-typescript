@@ -44,7 +44,7 @@ ul.menu li {
 }
 
 ul.menu li a {
-    color: #ea8c55;
+    color: #ffffff;
     text-decoration: none;
     text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
 }
@@ -73,7 +73,7 @@ ul.menu li:hover ul.menu-sub {
 }
 
 a:hover {
-    color: #ffffff !important;
+    color: #c75146 !important;
     transition: 0.3s color;
 }
 

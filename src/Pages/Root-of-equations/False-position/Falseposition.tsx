@@ -1,5 +1,6 @@
-import React, { useState, ChangeEvent } from "react"
-import { Button, Container, Form } from "react-bootstrap";
+import React, { useState, FormEvent } from "react"
+import '../../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import './Falseposition.css'
 import { evaluate } from 'mathjs'
 import { Table } from '@mantine/core'
 import {
@@ -33,6 +34,17 @@ type Data = {
     X1old: number;
 };
 
+interface FormValues {
+    fx: string;
+    xl: number;
+    xr: number;
+}
+
+interface InputData {
+    XL: string;
+    XR: string;
+}
+
 const Falseposition: React.FC = () => {
     const [data, setData] = useState<Data[]>([]);
     const [valueIter, setValueIter] = useState<number[]>([]);
@@ -42,14 +54,12 @@ const Falseposition: React.FC = () => {
     const [valueE, setValueE] = useState<number[]>([]);
     const [valueX1old, setValueX1old] = useState<number[]>([]);
     const [showGraph, setshowGraph] = useState<boolean>(false);
-
+    const [iterCount, setIterCount] = useState<number>(0);
     const [html, setHtml] = useState<JSX.Element | null>(null);
-    const [Equation, setEquation] = useState<string>("(x^4)-13");
+    const [equation, setEquation] = useState<string>("(x^4)-13");
     const [X, setX] = useState<number>(0);
     const [XL, setXL] = useState<string>('0');
     const [XR, setXR] = useState<string>('0');
-    // const [X1, setX1] = useState<string>('0');
-    // const [X1old, setX1old] = useState<string>('0');
     const print = (): JSX.Element => {
         console.log(data);
         setValueIter(data.map((x) => x.iteration));
@@ -74,10 +84,10 @@ const Falseposition: React.FC = () => {
                         return (
                             <tr key={index}>
                                 <td>{element.iteration}</td>
-                                <td>{element.XL}</td>
-                                <td>{element.X1}</td>
-                                <td>{element.XR}</td>
-                                <td>{element.E}</td>
+                                <td>{element.XL.toPrecision(4)}</td>
+                                <td>{element.X1.toPrecision(4)}</td>
+                                <td>{element.XR.toPrecision(4)}</td>
+                                <td>{element.E.toPrecision(4)}</td>
                             </tr>)
                     })}
                 </tbody>
@@ -86,7 +96,6 @@ const Falseposition: React.FC = () => {
     }
 
     const error = (xold: number, xnew: number) => Math.abs((xnew - xold) / xnew) * 100;
-
     const Calfalseposition = (xL: number, xR: number) => {
         let X1, fX1, fXR, fXL, ea, scope, X1old=0;
         let iter = 0;
@@ -97,20 +106,16 @@ const Falseposition: React.FC = () => {
             scope = {
                 x: xR,
             }
-            fXR = evaluate(Equation, scope)
-
+            fXR = evaluate(equation, scope)
             scope = {
                 x: xL,
             }
-            fXL = evaluate(Equation, scope)
-
+            fXL = evaluate(equation, scope)
             X1=((xL*fXR)-(xR*fXL))/(fXR-fXL);
-
             scope = {
                 x: X1,
             }
-            fX1 = evaluate(Equation, scope)
-
+            fX1 = evaluate(equation, scope)
             iter++;
             if (fX1 * fXR > 0) {
                 ea = error(X1old, X1);
@@ -125,7 +130,6 @@ const Falseposition: React.FC = () => {
                 data.push(obj)
                 X1old=X1;
                 xR = X1;
-
             }
             else {
                 ea = error(X1old, X1);
@@ -143,18 +147,31 @@ const Falseposition: React.FC = () => {
                 console.log(data);
             }
         } while (ea > e && iter < MAX)
-        setX(X1)
+        setX(obj.X1);
+        setIterCount(obj.iteration);
+        console.log(X);
         setshowGraph(true)
     }
 
     const options = {
         scales: {
             x: {
+                display: true,
                 grid: {
-                    display: false,
+                    display: true,
                 }
             },
+            y: {
+                display: true,
+                ticks: {
+                    stepSize: 0.000001,
+                    suggestedMin: 0,
+
+                }
+
+            },
         },
+
         plugins: {
             legend: {
                 display: false
@@ -162,81 +179,163 @@ const Falseposition: React.FC = () => {
         }
     }
 
-    const chartdata = {
+    const errorGraph = {
         labels: valueIter,
         datasets: [
             {
-                label: '',
+                label: 'ERROR',
                 data: valueE,
-                borderColor: 'rgb(53, 162, 235)',
-                backgroundColor: 'rgba(53, 162, 235, 0.5)',
+                borderColor: '#540804',
+                backgroundColor: '#ad2e24',
             },
         ],
     }
 
-    const inputEquation = (e: ChangeEvent<HTMLInputElement>) => {
-        const input = e.target.value
-        console.log(input)
-        setEquation(input)
+    const X1Graph = {
+        labels: valueIter,
+        datasets: [
+            {
+                label: 'X1',
+                data: valueX1,
+                borderColor: '#540804',
+                backgroundColor: '#ad2e24',
+            },
+        ],
     }
 
-    const inputXL = (e: ChangeEvent<HTMLInputElement>) => {
-        const inputXL = e.target.value;
-        console.log(inputXL);
-        setXL(inputXL);
-        
-    };
-
-
-    const inputXR = (e: ChangeEvent<HTMLInputElement>) => {
-        const inputXR = e.target.value;
-        console.log(inputXR);
-        setXR(inputXR);
+    const checkinput = (input: InputData): boolean => {
+        let fxl, fxr, scope;
+        scope = {
+            x: input.XL
+        }
+        fxl = evaluate(equation, scope);
+        scope = {
+            x: input.XR
+        }
+        fxr = evaluate(equation, scope);
+        if (fxl < 0 && fxr > 0) {
+            return true;
+        } else {
+            setshowGraph(false);
+            return false;
+        }
     }
 
-    const calculateRoot = () => {
-        const xlnum = parseFloat(XL)
-        const xrnum = parseFloat(XR)
-        Calfalseposition(xlnum, xrnum);
-        setHtml(print());
-
-        console.log(valueIter)
-        console.log(valueXL)
+    const inputEquation = (fx: string) => {
+        setEquation(fx)
     }
 
-    const resetPage = () => {
-        
+    const calculateRoot = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setX(0);
+        setData([]);
+        setValueIter([]);
+        setValueXL([]);
+        setValueX1([]);
+        setValueXR([]);
+        setValueE([]);
+        setHtml(null);
+        const formData: FormValues = {
+            fx: e.currentTarget.fx.value,
+            xl: e.currentTarget.xl.value,
+            xr: e.currentTarget.xr.value
+        };
+        const XLstr = formData.xl.toString();
+        const XRstr = formData.xr.toString();
+        const inputData: InputData = { XL: XLstr, XR: XRstr };
+        inputEquation(formData.fx);
+        let check = checkinput(inputData);
+        if (check === true) {
+            const xlnum = parseFloat(inputData.XL)
+            const xrnum = parseFloat(inputData.XR)
+            console.log(xlnum + " " + xrnum);
+            setXL(XLstr);
+            setXR(XRstr);
+            Calfalseposition(xlnum, xrnum);
+            setHtml(print());
+
+            console.log(valueIter)
+            console.log(valueXL)
+        } else {
+            alert("Failed! XL or XR value is incorrect");
+        }
     }
 
     return (
-        <Container style={{background: '#ffbe0b'}}>
-            <Form >
-                <Form.Group className="mb-3">
-                    <Form.Label>Input f(x)</Form.Label>
-                    <input type="text" id="equation" value={Equation} onChange={inputEquation} style={{ width: "20%", margin: "0 auto" }} className="form-control"></input>
-                    <Form.Label>Input XL</Form.Label>
-                    <input type="number" id="XL" onChange={inputXL} style={{ width: "20%", margin: "0 auto" }} className="form-control"></input>
-                    <Form.Label>Input XR</Form.Label>
-                    <input type="number" id="XR" onChange={inputXR} style={{ width: "20%", margin: "0 auto" }} className="form-control"></input>
-                </Form.Group>
-                <Button variant="dark" onClick={calculateRoot}>
-                    Calculate
-                </Button>
-                <Button variant="dark" onClick={resetPage}>
-                    Reset
-                </Button>
-            </Form>
-            <br></br>
-            <h5>Answer = {X.toPrecision(3)}</h5>
-            {showGraph == true &&
-            <Container>
-                <Line options={options} data={chartdata} />
-                {html}
-            </Container>
+        <div className="falseposition">
+        <div className="container falseposition-input" style={{ margin: "2vh 2vw", padding: "20px" }}>
+            <form style={{ width: "20vw" }} onSubmit={(e) => { calculateRoot(e) }}>
+                <u><h4><b>False-Position method</b></h4></u>
+                <h6 style={{ color: "red" }}>Note: f(XL) and f(XR) result must be opposite</h6>
+                <p>Steps:</p>
+                <p>1. หาค่า X1 โดย</p>
+                <p>X1=((XL*f(XR))-(XR*f(XL)))/(f(XR)-(fXL))</p>
+                <p>2. นำค่า X1 XR ไปแทนค่าในสมการ f(x) แล้วเทียบตามเงื่อนไขดังนี้</p>
+                <p><b>หากค่า f(X1) * f(XR) {'>'} 0 ให้ค่า XR=X1</b></p>
+                <p><b>หากค่า f(X1) * f(XR) {'<'} 0 ให้ค่า XL=X1</b></p>
+                <p>3. หาค่า error</p>
+                <h5><b>Please fill the input below</b></h5>
+                <label>&nbsp; f(x)</label>
+                <br />
+                <input required type="text" name="fx" className="form-control" placeholder="Enter f(x)" style={{ borderRadius: "5px" }} defaultValue={equation} />
+                <br />
+                <label>&nbsp; XL value</label>
+                <br />
+                <input required type="number" step="0.01" name="xl" className="form-control" placeholder="Enter XL" style={{ borderRadius: "5px" }} />
+                <br />
+                <label>&nbsp; XR value</label>
+                <br />
+                <input required type="number" step="0.01" name="xr" className="form-control" placeholder="Enter XR" style={{ borderRadius: "5px" }} />
+                <br />
+                <div className="falseposition-child">
+                <div style={{ width: "100px"}}>
+                <button className="btn btn-primary btn-block" id="btn-submit" style={{ backgroundColor: "#ad2e24", borderColor: "#540804", marginBottom: "5px" }} type="submit">Calculate</button>
+                </div>
+                <div>
+            <button disabled className="btn btn-primary btn-block" id="btn-load" style={{ backgroundColor: "#ea8c55", borderColor: "#ffbe0b", marginBottom: "5px" }} onClick={()=>{}}>Load example</button>
+            </div>
+            </div>
+            </form>
+
+        </div>
+        <div>
+            {showGraph === true &&
+                <div>
+                    <div className="container falseposition-answer" style={{ margin: "2vh 2vw", padding: "10px 20px", border: "3px solid #ea8c55", borderRadius: "8px" }}>
+                        <div>
+                        <h4><u><b>Input equation: {equation}</b></u></h4>
+                        <h4>Input XL: {XL}</h4>
+                        <h4>Input XR: {XR}</h4>
+                        </div>
+                        <div>
+                        <h4><u><b>Result</b></u></h4>
+                        <h5>Total iteration: {iterCount}</h5>
+                        <h5 style={{ color: "white" }}><b>Answer = {X.toPrecision(4)}</b></h5>
+                        </div>
+                    </div>
+                    <div className="container falseposition-graph" style={{ margin: "2vh 2vw", padding: "20px", border: "2px solid #c75146", borderRadius: "8px" }}>
+                        <h4><u><b>Error graph</b></u></h4>
+                        <Line style={{ height: "245px", width: "490px" }} options={options} data={errorGraph} />
+                    </div>
+                    <div className="container falseposition-graph" style={{ margin: "2vh 2vw", padding: "20px", border: "2px solid #c75146", borderRadius: "8px" }}>
+                        <h4><u><b>X1 graph</b></u></h4>
+                        <Line style={{ height: "245px", width: "490px" }} options={options} data={X1Graph} />
+                    </div>
+                </div>
             }
-
-        </Container>
-
+        </div>
+        <div>
+            {showGraph === true &&
+                <div>
+                    <div className="container falseposition-table" style={{ margin: "2vh 1vw", padding: "20px", border: "2px solid #c75146", borderRadius: "8px" }}>
+                        <h4><u><b>Calculate values</b></u></h4>
+                        {html}
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+        
     )
 }
 
