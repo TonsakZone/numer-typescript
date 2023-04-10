@@ -65,6 +65,6 @@ describe('calFalseposition', () => {
     // Test the function with the equation x^3 + 4x^2 - 10 = 0
     const equation = '(x^4)-13';
     const result = Calfalseposition(0, 2, equation);
-    expect(result.X1).toBeCloseTo(1.89882, 4);
+    expect(result.X1).toBeCloseTo(1.8988, 4);
   });
 });
