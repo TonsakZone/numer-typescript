@@ -1,0 +1,144 @@
+// const request = require('supertest');
+// const app = require('./index.js');
+
+
+
+// const request = require('supertest');
+// const app = require('./express.js').app;
+
+
+
+
+
+// describe('POST /ExOnepoint', () => {
+//   it('responds with data for valid request body', async () => {
+//     const response = await request(app).post('/ExOnepoint').send({ selectedValue: '(((2*x)+5)/2)^(1/3)' });
+//     expect(response.status).toBe(200);
+//     expect(response.body).toHaveLength(1);
+//     expect(response.body[0]).toHaveProperty('Equation', '(((2*x)+5)/2)^(1/3)');
+//   });
+
+//   it('responds with 500 for invalid request body', async () => {
+//     const response = await request(app).post('/ExOnepoint').send({ invalid: 'invalid' });
+//     expect(response.status).toBe(500);
+//   });
+// });
+
+// describe('POST /Exlinear', () => {
+//   it('responds with data for valid request body and authentication', async () => {
+//     const responseToken = await request(app).post('/token');
+//     const response = await request(app)
+//       .post('/Exlinear')
+//       .send({ selectedValue: 'option1' })
+//       .set('Authorization', responseToken.body.token);
+//     expect(response.status).toBe(200);
+//     expect(response.body).toHaveLength(1);
+//     expect(response.body[0]).toHaveProperty('NSize', 9);
+//   });
+
+//   it('responds with 401 for missing authentication', async () => {
+//     const response = await request(app).post('/Exlinear').send({ selectedValue: 'option1' });
+//     expect(response.status).toBe(401);
+//   });
+
+//   it('responds with 401 for invalid authentication', async () => {
+//     const response = await request(app)
+//       .post('/Exlinear')
+//       .send({ selectedValue: 'option1' })
+//       .set('Authorization', 'invalid');
+//     expect(response.status).toBe(401);
+//   });
+
+//   it('responds with 500 for invalid request body', async () => {
+//     const responseToken = await request(app).post('/token');
+//     const response = await request(app)
+//       .post('/Exlinear')
+//       .send({ invalid: 'invalid' })
+//       .set('Authorization', responseToken.body.token);
+//     expect(response.status).toBe(500);
+//   });
+
+
+// });
+
+// test('GET /hello ', async () => {
+//     const res = await request(app).get('/hello')
+//     expect(res.text).toBe("Hello world")
+// })
+
+// const jwt = require('jsonwebtoken');
+
+// describe('generateToken', () => {
+//   it('should generate a JWT token with the correct payload', () => {
+//     const req = {};
+//     const res = {
+//       json: jest.fn(),
+//     };
+//     app(req, res);
+
+//     expect(res.json).toHaveBeenCalled();
+
+//     const token = res.json.mock.calls[0][0].token;
+//     const decoded = jwt.verify(token, 'tonsak5343');
+//     expect(decoded.apiKey).toEqual('5343');
+//   });
+// });
+
+
+const request = require('supertest');
+const app = require('./express.js.old'); // Your Express app
+const mongoose = require('mongoose');
+
+const BisectionSchema = new mongoose.Schema({
+    Equation: {
+        type: String,
+        required: true,
+    },
+    XL: {
+        type: Number,
+        required: true,
+    },
+    XR: {
+        type: Number,
+        required: true,
+    },
+});
+
+let realApp
+describe('API endpoint tests', () => {
+    beforeAll(async () => {
+        // Connect to the MongoDB test database
+        const uri = 'mongodb+srv://tonsak2:1234@cluster0.oig7p.mongodb.net/Numerical'
+        await mongoose.connect(uri, { useNewUrlParser: true });
+        BisectionModel = mongoose.model('bisections', BisectionSchema);
+        realApp = app.startServer(BisectionModel)
+    });
+
+    afterAll(async () => {
+        // Disconnect from the MongoDB test database
+        await mongoose.connection.close();
+    });
+
+    describe('GET /Exbisection', () => {
+        it('responds with data for valid query parameter', async () => {
+            const response = await request(realApp).get('/Exbisection/(x^4)-13');
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveLength(1);
+            expect(response.body[0]).toHaveProperty('Equation', '(x^4)-13');
+        })
+
+        it('responds with 404 for invalid query parameter', async () => {
+            const response = await request(realApp).get('/Exbisection/');
+            expect(response.status).toBe(404);
+        });
+    });
+
+    //   describe('POST /api/users', () => {
+    //     it('responds with status 201 and creates a new user', async () => {
+    //       const newUser = { name: 'John', email: 'john@example.com' };
+    //       const res = await request(startServer).post('/api/users').send(newUser);
+    //       expect(res.status).toBe(201);
+    //       expect(res.body).toMatchObject(newUser);
+    //     });
+    //   });
+});

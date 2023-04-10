@@ -67,6 +67,7 @@ const Bisection: React.FC = () => {
     const [X, setX] = useState<number>(0)
     const [XL, setXL] = useState<string>("0")
     const [XR, setXR] = useState<string>("0")
+    const [Authorization, setAuthorization] = useState<string>('');
     const [selectedOption, setSelectedOption] = useState<Option | null>(null);
     const print = (): JSX.Element => {
         console.log(data);
@@ -263,18 +264,24 @@ const Bisection: React.FC = () => {
         // console.log(selectedLabel);
         console.log(selectedValue);
 
-        setSelectedOption({ value: selectedValue });
+        axios.post("http://localhost:5000/token").then(res=> {
+            setAuthorization(res.data.token);
+            console.log(res.data.token);
+          })
 
+        setSelectedOption({ value: selectedValue });
+        // console.log(`http://localhost:5000/Exbisection/${selectedValue}`);
+        
         // Make axios.post request to API endpoint with selected value
-        axios.get('http://localhost:5000/Exbisection', {   params: { select: selectedValue } })
+        axios.post(`http://localhost:5000/methods`, {pages: 'bisections', Equation: selectedValue}, {headers: {authorization: `${Authorization}`}})
             .then(response => {
-                console.log(response.data[0].Equation);
+                console.log(response.data.Equation);
                 const inputFx = document.getElementById('fx-input') as HTMLInputElement;
                 const inputXl = document.getElementById('xl-input') as HTMLInputElement;
                 const inputXr = document.getElementById('xr-input') as HTMLInputElement;
-                inputFx.value = response.data[0].Equation;
-                inputXl.value = response.data[0].XL;
-                inputXr.value = response.data[0].XR;
+                inputFx.value = response.data.Equation;
+                inputXl.value = response.data.XL;
+                inputXr.value = response.data.XR;
             })
             .catch(error => {
                 console.error(error);
@@ -360,3 +367,4 @@ const Bisection: React.FC = () => {
 }
 
 export default Bisection;
+

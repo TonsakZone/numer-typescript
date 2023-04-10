@@ -20,7 +20,12 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: 18
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
-    - run: echo "hello world"
+    - name: install module
+      run: |
+        cd api
+        npm i
+    - name: test api
+      run: |
+        cd api
+        npm test
+        

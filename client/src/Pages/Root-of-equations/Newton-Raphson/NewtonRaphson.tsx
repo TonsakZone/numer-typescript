@@ -2,7 +2,7 @@ import React, { useState, FormEvent } from "react"
 import '../../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import './NewtonRaphson.css'
 import { evaluate, derivative } from 'mathjs'
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import { Table } from '@mantine/core'
 import {
     Chart as ChartJS,
@@ -210,9 +210,9 @@ const NewtonRaphson: React.FC = () => {
                         <div>
                             <button disabled className="btn btn-primary btn-block" id="btn-load" style={{ backgroundColor: "#ea8c55", borderColor: "#ffbe0b", marginBottom: "5px" }} onClick={() => { }}>Example</button>
                         </div>
-                        <div>
+                        {/* <div>
                             <button className="btn btn-primary btn-block" id="btn-load" style={{ backgroundColor: "#000000", borderColor: "#000000", marginBottom: "10px" }}><Link to="/rootofequation">Back</Link></button>
-                        </div>
+                        </div> */}
                     </div>
                 </form>
             </div>
@@ -251,7 +251,6 @@ const NewtonRaphson: React.FC = () => {
                 }
             </div>
         </div>
-
     )
 }
 

@@ -1,0 +1,25 @@
+const mongoose = require("mongoose");
+const test =  require("./express.js.old")
+const BisectionSchema = new mongoose.Schema({
+    Equation: {
+        type: String,
+        required: true,
+    },
+    XL: {
+        type: Number,
+        required: true,
+    },
+    XR: {
+        type: Number,
+        required: true,
+    },
+});
+
+async function init(){
+    const uri = 'mongodb+srv://tonsak2:1234@cluster0.oig7p.mongodb.net/Numerical'
+    let connect = await mongoose.createConnection(uri)
+    BisectionModel = connect.model('bisections', BisectionSchema);
+    test.startServer(BisectionModel)
+}
+init()
+

@@ -157,37 +157,30 @@ const LinearRegression: React.FC = () => {
         console.log(selectedValue);
         
         if(selectedValue == 'empty') {
-            console.log('success');
-            axios.post('http://localhost:5000/token').then(res => {
-                console.log(res.data.token);
-                setAuthorization(res.data.token);
-            });
+            alert("Value cannot be empty");
         }
+
         // const selectedLabel = e.target.selectedOptions[0].label;
         // console.log(selectedLabel);
         console.log(selectedValue);
         console.log(Authorization);
-        
-
         setSelectedOption({ value: selectedValue });
 
         // Make axios.post request to API endpoint with selected value
-        axios.post('http://localhost:5000/Exlinear', { selectedValue }, {headers: {
-    authorization: `${Authorization}`
-  } })
+        axios.post('http://localhost:5000/methods',{pages: 'linearregressions', Equation: selectedValue}, {headers: {authorization: `${Authorization}`}})
             .then(response => {
                 const inputN = document.getElementById('n-input') as HTMLInputElement;
                 const inputX = document.getElementById('x-input') as HTMLInputElement;
                 const inputMat = document.getElementById('met-input') as HTMLInputElement;
-                inputN.value = response.data[0].NSize;
-                inputX.value = response.data[0].Xval;
-                inputMat.value = response.data[0].Matrix
+                inputN.value = response.data.NSize;
+                inputX.value = response.data.Xval;
+                inputMat.value = response.data.Matrix
                 // inputXr.value = response.data[0].XR;
-                console.log(response.data[0].Matrix);
+                console.log(response.data.Matrix);
                 // setMatrixData(response.data[0].Matrix);                
-                setNSize(response.data[0].NSize);
+                setNSize(response.data.NSize);
                 // setMatrix(Array(response.data[0].NSize).fill(null).map(() => Array(2).fill(null)));
-                setMatrix(response.data[0].Matrix)
+                setMatrix(response.data.Matrix)
 
                 // print_example()
             })

@@ -2,6 +2,7 @@ import React, { useState, FormEvent } from "react"
 import '../../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import './Onepoint.css'
 import { parse } from 'mathjs'
+import axios from "axios";
 import { Link } from "react-router-dom";
 import { Table } from '@mantine/core'
 import {
@@ -15,7 +16,7 @@ import {
     Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import axios from "axios";
+
 
 ChartJS.register(
     CategoryScale,
@@ -56,6 +57,7 @@ const Onepoint: React.FC = () => {
     const [equation, setEquation] = useState<string>("");
     const [X, setX] = useState<number>(0);
     const [Xin, setXin] = useState<number>(0);
+    const [Authorization, setAuthorization] = useState<string>('');
     const [selectedOption, setSelectedOption] = useState<Option | null>(null);
     const print = (): JSX.Element => {
         console.log(data);
@@ -202,13 +204,19 @@ const Onepoint: React.FC = () => {
             setshowGraph(false)
         }
         console.log(selectedValue);
+
+        axios.post("http://localhost:5000/token").then(res=> {
+            setAuthorization(res.data.token);
+            console.log(res.data.token);
+          })
+        
         setSelectedOption({ value: selectedValue });
 
-        axios.post("http://localhost:5000/ExOnepoint", { selectedValue }).then(response => {
+        axios.post("http://localhost:5000/methods", {pages: 'onepoints', Equation: selectedValue}, {headers: {authorization: `${Authorization}`}}).then(response => {
             const inputFx = document.getElementById('fx-input') as HTMLInputElement;
             const inputX = document.getElementById('x-input') as HTMLInputElement;
-            inputFx.value = response.data[0].Equation;
-            inputX.value = response.data[0].X;
+            inputFx.value = response.data.Equation;
+            inputX.value = response.data.X;
         })
         .catch(error => {
             console.error(error);
