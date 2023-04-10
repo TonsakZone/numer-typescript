@@ -212,7 +212,7 @@ const Onepoint: React.FC = () => {
         
         setSelectedOption({ value: selectedValue });
 
-        axios.post("http://localhost:5000/methods", {pages: 'onepoints', Equation: selectedValue}, {headers: {authorization: `${Authorization}`}}).then(response => {
+        axios.post("http://localhost:5000/methods", {pages: 'onepoints', Equation: selectedValue, headers: {authorization: `${Authorization}`}}).then(response => {
             const inputFx = document.getElementById('fx-input') as HTMLInputElement;
             const inputX = document.getElementById('x-input') as HTMLInputElement;
             inputFx.value = response.data.Equation;

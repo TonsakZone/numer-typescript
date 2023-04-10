@@ -34,6 +34,7 @@ connectDB()
 function authenticate(req, res, next) {
     // console.log(req.headers.authorization);
     const authHeader = req.body.headers['authorization'];
+    // const authHeader = req.headers['authorization'];
     // const authHeader = req.headers.authorization
     console.log(authHeader);
 

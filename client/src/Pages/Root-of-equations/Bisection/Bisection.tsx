@@ -5,6 +5,7 @@ import './Bisection.css'
 import { Table } from '@mantine/core'
 import { Link } from "react-router-dom";
 import axios from 'axios'
+import { Calbisection } from './Calbisection';
 
 import {
     Chart as ChartJS,
@@ -102,55 +103,63 @@ const Bisection: React.FC = () => {
             </Table>
         );
     }
-    const error = (xold: number, xnew: number) => Math.abs((xnew - xold) / xnew) * 100;
 
-    const Calbisection = (xL: number, xr: number) => {
-        let xm, fXm, fXr, ea, scope;
-        let iter = 0;
-        let MAX = 50;
-        const e = 0.00001;
-        let obj: Data = { iteration: 0, XL: 0, Xm: 0, Xr: 0, E: 100 };
-        do {
-            xm = (xL + xr) / 2.0;
-            scope = {
-                x: xr,
-            }
-            fXr = evaluate(equation, scope)
-            scope = {
-                x: xm,
-            }
-            fXm = evaluate(equation, scope)
-            iter++;
-            if (fXm * fXr > 0) {
-                ea = error(xr, xm);
-                obj = {
-                    iteration: iter,
-                    XL: xL,
-                    Xm: xm,
-                    Xr: xr,
-                    E: ea
-                }
-                data.push(obj)
-                xr = xm;
-            }
-            else {
-                ea = error(xL, xm);
-                obj = {
-                    iteration: iter,
-                    XL: xL,
-                    Xm: xm,
-                    Xr: xr,
-                    E: ea
-                }
-                data.push(obj)
-                xL = xm;
-            }
-        } while (ea > e && iter < MAX)
+    const Calbisection1 = (xL: number, xr: number) => {
+        const obj = Calbisection(xL, xr, equation);
         setX(obj.Xm);
         setIterCount(obj.iteration);
         console.log(X);
-        setshowGraph(true)
-    }
+        setshowGraph(true);
+      };
+    // const error = (xold: number, xnew: number) => Math.abs((xnew - xold) / xnew) * 100;
+
+    // const Calbisection = (xL: number, xr: number) => {
+    //     let xm, fXm, fXr, ea, scope;
+    //     let iter = 0;
+    //     let MAX = 50;
+    //     const e = 0.00001;
+    //     let obj: Data = { iteration: 0, XL: 0, Xm: 0, Xr: 0, E: 100 };
+    //     do {
+    //         xm = (xL + xr) / 2.0;
+    //         scope = {
+    //             x: xr,
+    //         }
+    //         fXr = evaluate(equation, scope)
+    //         scope = {
+    //             x: xm,
+    //         }
+    //         fXm = evaluate(equation, scope)
+    //         iter++;
+    //         if (fXm * fXr > 0) {
+    //             ea = error(xr, xm);
+    //             obj = {
+    //                 iteration: iter,
+    //                 XL: xL,
+    //                 Xm: xm,
+    //                 Xr: xr,
+    //                 E: ea
+    //             }
+    //             data.push(obj)
+    //             xr = xm;
+    //         }
+    //         else {
+    //             ea = error(xL, xm);
+    //             obj = {
+    //                 iteration: iter,
+    //                 XL: xL,
+    //                 Xm: xm,
+    //                 Xr: xr,
+    //                 E: ea
+    //             }
+    //             data.push(obj)
+    //             xL = xm;
+    //         }
+    //     } while (ea > e && iter < MAX)
+    //     setX(obj.Xm);
+    //     setIterCount(obj.iteration);
+    //     console.log(X);
+    //     setshowGraph(true)
+    // }
     const options = {
         scale: {
             x: {
@@ -245,7 +254,7 @@ const Bisection: React.FC = () => {
             console.log(xlnum + " " + xrnum);
             setXL(XLstr);
             setXR(XRstr);
-            Calbisection(xlnum, xrnum);
+            Calbisection1(xlnum, xrnum);
             setHtml(print());
 
             console.log(valueIter)
@@ -273,7 +282,7 @@ const Bisection: React.FC = () => {
         // console.log(`http://localhost:5000/Exbisection/${selectedValue}`);
         
         // Make axios.post request to API endpoint with selected value
-        axios.post(`http://localhost:5000/methods`, {pages: 'bisections', Equation: selectedValue}, {headers: {authorization: `${Authorization}`}})
+        axios.post(`http://localhost:5000/methods`, {pages: 'bisections', Equation: selectedValue, headers: {authorization: `${Authorization}`}})
             .then(response => {
                 console.log(response.data.Equation);
                 const inputFx = document.getElementById('fx-input') as HTMLInputElement;

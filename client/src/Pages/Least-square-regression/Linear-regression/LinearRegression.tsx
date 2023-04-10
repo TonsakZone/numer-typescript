@@ -167,7 +167,7 @@ const LinearRegression: React.FC = () => {
         setSelectedOption({ value: selectedValue });
 
         // Make axios.post request to API endpoint with selected value
-        axios.post('http://localhost:5000/methods',{pages: 'linearregressions', Equation: selectedValue}, {headers: {authorization: `${Authorization}`}})
+        axios.post('http://localhost:5000/methods',{pages: 'linearregressions', Equation: selectedValue, headers: {authorization: `${Authorization}`}})
             .then(response => {
                 const inputN = document.getElementById('n-input') as HTMLInputElement;
                 const inputX = document.getElementById('x-input') as HTMLInputElement;

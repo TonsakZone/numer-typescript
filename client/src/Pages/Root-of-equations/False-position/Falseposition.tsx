@@ -15,6 +15,7 @@ import {
     Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import { Calfalseposition } from "./Calfalseposition";
 
 ChartJS.register(
     CategoryScale,
@@ -95,65 +96,13 @@ const Falseposition: React.FC = () => {
             </Table>
         );
     }
-
-    const error = (xold: number, xnew: number) => Math.abs((xnew - xold) / xnew) * 100;
-
-    const Calfalseposition = (xL: number, xR: number) => {
-        let X1, fX1, fXR, fXL, ea, scope, X1old = 0;
-        let iter = 0;
-        let MAX = 50;
-        const e = 0.00001;
-        let obj: Data = { iteration: 0, XL: 0, X1: 0, XR: 0, E: 100, X1old: 0 };
-        do {
-            scope = {
-                x: xR,
-            }
-            fXR = evaluate(equation, scope)
-            scope = {
-                x: xL,
-            }
-            fXL = evaluate(equation, scope)
-            X1 = ((xL * fXR) - (xR * fXL)) / (fXR - fXL);
-            scope = {
-                x: X1,
-            }
-            fX1 = evaluate(equation, scope)
-            iter++;
-            if (fX1 * fXR > 0) {
-                ea = error(X1old, X1);
-                obj = {
-                    iteration: iter,
-                    XL: xL,
-                    X1: X1,
-                    XR: xR,
-                    E: ea,
-                    X1old: X1old
-                }
-                data.push(obj)
-                X1old = X1;
-                xR = X1;
-            }
-            else {
-                ea = error(X1old, X1);
-                obj = {
-                    iteration: iter,
-                    XL: xL,
-                    X1: X1,
-                    XR: xR,
-                    E: ea,
-                    X1old: X1old
-                }
-                data.push(obj)
-                X1old = X1;
-                xL = X1;
-                console.log(data);
-            }
-        } while (ea > e && iter < MAX)
-        setX(obj.X1);
-        setIterCount(obj.iteration);
-        console.log(X);
-        setshowGraph(true)
-    }
+const Calfalseposition1 = (xL: number, xr:number) => {
+    const obj = Calfalseposition(xL, xr, equation);
+    setX(obj.X1);
+    setIterCount(obj.iteration);
+    console.log(X);
+    setshowGraph(true)
+}
 
     const options = {
         scales: {
@@ -253,7 +202,7 @@ const Falseposition: React.FC = () => {
             console.log(xlnum + " " + xrnum);
             setXL(XLstr);
             setXR(XRstr);
-            Calfalseposition(xlnum, xrnum);
+            Calfalseposition1(xlnum, xrnum);
             setHtml(print());
 
             console.log(valueIter)
