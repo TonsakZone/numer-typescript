@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt&display=swap');
+
+* { /*reset browser*/
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Prompt', sans-serif;
+}
+
+nav {
+    height: 10vh;
+    width: 100%;
+    background: #540804;
+    color: white;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+nav h2 {
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    border: 2px solid white;
+    padding: 5px 10px;
+}
+
+ul {
+    list-style: none;
+    padding-left: 0 !important;
+}
+
+ul.menu {
+    display: flex;
+}
+
+ul.menu li {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 60px;
+    padding: 0 25px;
+    transition: .5s;
+    position: relative;
+}
+
+ul.menu li a {
+    color: #ffffff;
+    text-decoration: none;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+
+/* ul.menu li:hover {
+    background: darkgray;
+} */
+
+ul.menu li ul.menu-sub {
+    position: absolute;
+    top: 60px;
+    background: #540804;
+    display: none;
+}
+
+ul.menu li ul.menu-sub li {
+    width: 200px;
+    padding: 25px;
+    display: flex;
+    justify-content: flex-start;
+    position: relative;
+}
+
+ul.menu li:hover ul.menu-sub {
+    display: block;
+}
+
+a:hover {
+    color: #c75146 !important;
+    transition: 0.3s color;
+}
+
+

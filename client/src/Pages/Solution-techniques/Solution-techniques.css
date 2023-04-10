@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt&display=swap');
+
+.st-main {
+    display: block;
+    padding: 20px 10px;
+    animation: fadein 1s;
+}
+
+.st-head {
+    text-align: center;
+    padding: 20px 10px;
+    animation: fadein 1s;
+}
+
+.st-child1 {
+    display: grid;
+    grid-template-columns: 33% 33% 34%;
+    justify-items: center;
+}
+
+.st-child2 {
+    display: grid;
+    grid-template-columns: 35% 31% 34%;
+    justify-items: center;
+}
+
+.st-child3 {
+    display: grid;
+    grid-template-columns: 33% 33% 33%;
+    justify-items: center;
+}
+
+a {
+    color: white !important;
+    text-decoration: none !important;
+}
+
+@keyframes fadein {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

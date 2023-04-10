@@ -1,0 +1,270 @@
+import React, { useState, FormEvent } from "react"
+import '../../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import './NewtonRaphson.css'
+import { evaluate, derivative } from 'mathjs'
+import { Link } from "react-router-dom";
+import { Table } from '@mantine/core'
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend,
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend
+);
+
+type Data = {
+    iteration: number;
+    XNew: number;
+    X0: number;
+    E: number;
+};
+
+interface FormValues {
+    fx: string;
+    x: number;
+}
+
+const NewtonRaphson: React.FC = () => {
+    const [data, setData] = useState<Data[]>([]);
+    const [valueIter, setValueIter] = useState<number[]>([]);
+    const [valueE, setValueE] = useState<number[]>([]);
+    const [valueXnew, setValueXnew] = useState<number[]>([]);
+    const [valueX, setValueX] = useState<number[]>([]);
+    const [valueX0, setValueX0] = useState<number[]>([]);
+    const [showGraph, setshowGraph] = useState<boolean>(false);
+    const [iterCount, setIterCount] = useState<number>(0);
+    const [html, setHtml] = useState<JSX.Element | null>(null);
+    const [equation, setEquation] = useState<string>("(x^2)-7");
+    // const [DiffEqua, setDiffEqua] = useState<string>("");
+    const [X, setX] = useState<number>(0);
+    const [Xin, setXin] = useState<number>(2);
+    // const [X0, setX0] = useState<string>('0');
+    // const [X1old, setX1old] = useState<string>('0');
+    const print = (): JSX.Element => {
+        console.log(data);
+        setValueIter(data.map((x) => x.iteration));
+        setValueXnew(data.map((x) => x.XNew));
+        // setValueX0(data.map((x) => x.X0));
+        setValueE(data.map((x) => x.E));
+        return (
+            <Table>
+                <thead>
+                    <tr>
+                        <th>Iteration</th>
+                        <th>X</th>
+                        {/* <th>X0</th> */}
+                        <th>Error</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {data.map((element, index) => {
+                        return (
+                            <tr key={index}>
+                                <td>{element.iteration}</td>
+                                <td>{element.XNew.toPrecision(4)}</td>
+                                {/* <td>{element.X0.toPrecision(4)}</td> */}
+                                <td>{element.E.toPrecision(4)}</td>
+                            </tr>)
+                    })}
+                </tbody>
+            </Table>
+        );
+    }
+
+    const error = (xold: number, xnew: number) => Math.abs((xnew - xold) / xnew) * 100;
+
+    const CalNR = (x0: number, f: string) => {
+        let xNew, fx, fDiff, ea, scope;
+        let iter = 0;
+        let MAX = 50;
+        const e = 0.00001;
+        const diffInput = derivative(f, 'x').toString()
+        let obj: Data = { iteration: 0, XNew: 0, X0: 0, E: 100 };
+        do {
+            scope = {
+                x: x0,
+            }
+            fx = evaluate(equation, scope)
+            fDiff = evaluate(diffInput, scope)
+
+            xNew = x0 - (fx / fDiff);
+
+            iter++;
+            ea = error(x0, xNew);
+            obj = {
+                iteration: iter,
+                XNew: xNew,
+                X0: x0,
+                E: ea
+            }
+            data.push(obj)
+            x0 = xNew;
+        } while (ea > e && iter < MAX)
+        setX(obj.XNew);
+        setIterCount(obj.iteration);
+        setshowGraph(true)
+    }
+
+    const options = {
+        scales: {
+            x: {
+                display: true,
+                grid: {
+                    display: true,
+                }
+            },
+            y: {
+                display: true,
+                ticks: {
+                    stepSize: 0.000001,
+                    suggestedMin: 0,
+
+                }
+
+            },
+        },
+
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+
+    const errorGraph = {
+        labels: valueIter,
+        datasets: [
+            {
+                label: 'ERROR',
+                data: valueE,
+                borderColor: '#540804',
+                backgroundColor: '#ad2e24',
+            },
+        ],
+    }
+
+    const XGraph = {
+        labels: valueIter,
+        datasets: [
+            {
+                label: 'X',
+                data: valueXnew,
+                borderColor: '#540804',
+                backgroundColor: '#ad2e24',
+            },
+        ],
+    }
+
+    const inputEquation = (fx: string) => {
+        setEquation(fx)
+        // const diffInput = derivative(fx, 'x').toString()
+        // setDiffEqua(diffInput)
+    }
+
+
+    const calculateRoot = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setX(0);
+        setData([]);
+        setValueIter([]);
+        setValueX([]);
+        setValueX0([]);
+        setValueE([]);
+        setHtml(null);
+        const formData: FormValues = {
+            fx: e.currentTarget.fx.value,
+            x: e.currentTarget.x.value
+        };
+        inputEquation(formData.fx);
+        setXin(formData.x);
+        CalNR(formData.x, equation);
+        setHtml(print());
+
+        console.log(valueIter)
+        console.log(valueX0)
+    }
+
+
+
+    return (
+        <div className="NR">
+            <div className="container NR-input" style={{ margin: "2vh 2vw", padding: "20px" }}>
+                <form style={{ width: "20vw" }} onSubmit={(e) => { calculateRoot(e) }}>
+                    <u><h4><b>Newton Raphson method</b></h4></u>
+                    <h5><b>Please fill the input below</b></h5>
+                    <label>&nbsp; f(x)</label>
+                    <br />
+                    <input required type="text" name="fx" className="form-control" placeholder="Enter f(x)" style={{ borderRadius: "5px" }} defaultValue={equation} />
+                    <br />
+                    <label>&nbsp; X value</label>
+                    <br />
+                    <input required type="number" step="0.01" name="x" className="form-control" placeholder="Enter X" style={{ borderRadius: "5px" }} defaultValue={Xin} />
+                    <br />
+                    <div className="NR-child">
+                        <div style={{ width: "100px" }}>
+                            <button className="btn btn-primary btn-block" id="btn-submit" style={{ backgroundColor: "#ad2e24", borderColor: "#540804", marginBottom: "5px" }} type="submit">Calculate</button>
+                        </div>
+                        <div>
+                            <button disabled className="btn btn-primary btn-block" id="btn-load" style={{ backgroundColor: "#ea8c55", borderColor: "#ffbe0b", marginBottom: "5px" }} onClick={() => { }}>Example</button>
+                        </div>
+                        <div>
+                            <button className="btn btn-primary btn-block" id="btn-load" style={{ backgroundColor: "#000000", borderColor: "#000000", marginBottom: "10px" }}><Link to="/rootofequation">Back</Link></button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div>
+                {showGraph === true &&
+                    <div>
+                        <div className="container NR-answer" style={{ margin: "2vh 2vw", padding: "10px 20px", border: "3px solid #ea8c55", borderRadius: "8px" }}>
+                            <div>
+                                <h4><u><b>Input equation: {equation}</b></u></h4>
+                                <h4>Input X: {Xin}</h4>                        </div>
+                            <div>
+                                <h4><u><b>Result</b></u></h4>
+                                <h5>Total iteration: {iterCount}</h5>
+                                <h5 style={{ color: "white" }}><b>Answer = {X.toPrecision(4)}</b></h5>
+                            </div>
+                        </div>
+                        <div className="container NR-graph" style={{ margin: "2vh 2vw", padding: "20px", border: "2px solid #c75146", borderRadius: "8px" }}>
+                            <h4><u><b>Error graph</b></u></h4>
+                            <Line style={{ height: "245px", width: "490px" }} options={options} data={errorGraph} />
+                        </div>
+                        <div className="container NR-graph" style={{ margin: "2vh 2vw", padding: "20px", border: "2px solid #c75146", borderRadius: "8px" }}>
+                            <h4><u><b>X graph</b></u></h4>
+                            <Line style={{ height: "245px", width: "490px" }} options={options} data={XGraph} />
+                        </div>
+                    </div>
+                }
+            </div>
+            <div>
+                {showGraph === true &&
+                    <div>
+                        <div className="container NR-table" style={{ margin: "2vh 1vw", padding: "20px", border: "2px solid #c75146", borderRadius: "8px" }}>
+                            <h4><u><b>Calculate values</b></u></h4>
+                            {html}
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    )
+}
+
+export default NewtonRaphson

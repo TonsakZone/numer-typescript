@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt&display=swap');
+
+
+.root-main {
+    display: block;
+    padding: 20px 10px;
+    animation: fadein 1s;
+}
+
+.root-head {
+    text-align: center;
+    padding: 20px 10px;
+    animation: fadein 1s;
+}
+
+.root-child1 {
+    display: grid;
+    grid-template-columns: 33% 33% 34%;
+    justify-items: center;
+}
+
+.root-child2 {
+    display: grid;
+    grid-template-columns: 35% 31% 34%;
+    justify-items: center;
+}
+
+a {
+    color: white !important;
+    text-decoration: none !important;
+}
+
+@keyframes fadein {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
