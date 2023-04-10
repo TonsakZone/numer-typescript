@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('./index');
+const app = require('./endpoints');
 
 describe('API-random path', ()=>{
     it('Bisection should query from mongo', async ()=>{
