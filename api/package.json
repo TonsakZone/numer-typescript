@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --detectOpenHandles",
+    "test": "jest --forceExit",
     "start": "node index.js",
     "swagger-autogen": "node swagger.js ",
     "dev": "nodemon"
