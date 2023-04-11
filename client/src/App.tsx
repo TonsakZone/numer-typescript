@@ -6,7 +6,7 @@ import Bisection from './Pages/Root-of-equations/Bisection/Bisection';
 import FalsePosition from './Pages/Root-of-equations/False-position/Falseposition';
 import Onepoint from './Pages/Root-of-equations/One-Point/Onepoint';
 import NewtonRaphson from './Pages/Root-of-equations/Newton-Raphson/NewtonRaphson';
-import Taylor from './Pages/Root-of-equations/Taylor-Series/TaylorSeries';
+import TaylorSeries from './Pages/Root-of-equations/Taylor-Series/TaylorSeries';
 import Secant from './Pages/Root-of-equations/Secant/Secant';
 import SolutionTechniques from './Pages/Solution-techniques/Solution-techniques';
 import Cramer from './Pages/Solution-techniques/Cramer/Cramer';
@@ -22,7 +22,7 @@ function App() {
           <Route path="/falseposition" element={<FalsePosition />} />
           <Route path="/onepoint" element={<Onepoint />} />
           <Route path="/newtonraphson" element={<NewtonRaphson />} />
-          <Route path="/taylor" element={<Taylor />} />
+          <Route path="/taylor" element={<TaylorSeries />} />
           <Route path="/secant" element={<Secant />} />
           <Route path="/solutiontechnique" element={<SolutionTechniques />} />
           <Route path="/cramer" element={<Cramer />} />

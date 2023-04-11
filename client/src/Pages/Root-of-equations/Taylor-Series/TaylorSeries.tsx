@@ -1,8 +1,7 @@
-import React, { useState, FormEvent } from "react"
+import React, { useState, FormEvent, ChangeEvent } from "react"
 import '../../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import './TaylorSeries.css'
 import { derivative, parse, factorial, evaluate } from 'mathjs'
-import { Link } from "react-router-dom";
 
 interface FormValues {
   fx: string;
@@ -11,7 +10,7 @@ interface FormValues {
   n: number;
 }
 
-const Taylor: React.FC = () => {
+const TaylorSeries: React.FC = () => {
   const [showGraph, setshowGraph] = useState<boolean>(false);
   const [displayEQ, setDisplayEQ] = useState<string>("(x^2)-7");
   const [X, setX] = useState<number>(0);
@@ -26,7 +25,6 @@ const Taylor: React.FC = () => {
     }
     let fAns=evaluate(displayEQ,scope);
     console.log(fAns);
-    
     
     let fx = "";
     let iter = 0;
@@ -56,20 +54,36 @@ const Taylor: React.FC = () => {
     setDisplayEQ(fx);
   }
 
+  const inputfx = (e: ChangeEvent<HTMLInputElement>) => {
+    setDisplayEQ(e.target.value);
+  }
+
+  const inputX = (e: ChangeEvent<HTMLInputElement>) => {
+    setXin(parseFloat(e.target.value));
+  }
+
+  const inputX0 = (e: ChangeEvent<HTMLInputElement>) => {
+    setX0in(parseFloat(e.target.value));
+  }
+
+  const inputN = (e: ChangeEvent<HTMLInputElement>) => {
+    setN(parseFloat(e.target.value));
+  }
+
   const calculateRoot = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setX(0);
-    const formData: FormValues = {
-      fx: e.currentTarget.fx.value,
-      x: e.currentTarget.x.value,
-      x0: e.currentTarget.x0.value,
-      n: e.currentTarget.n.value
-    };
-    inputEquation(formData.fx);
-    setXin(formData.x);
-    setX0in(formData.x0);
-    setN(formData.n);
-    CalTaylor(formData.x, formData.x0, formData.fx, formData.n);
+    // setX(0);
+    // const formData: FormValues = {
+    //   fx: e.currentTarget.value.fx,
+    //   x: parseFloat(e.currentTarget.value.x),
+    //   x0: e.currentTarget.value.x0,
+    //   n: e.currentTarget.value.n
+    // };
+    // inputEquation(formData.fx);
+    // setXin(formData.x);
+    // setX0in(formData.x0);
+    // setN(formData.n);
+    CalTaylor(Xin, X0in, displayEQ, N);
   }
 
   return (
@@ -78,31 +92,28 @@ const Taylor: React.FC = () => {
         <form style={{ width: "20vw" }} onSubmit={(e) => { calculateRoot(e) }}>
           <u><h4><b>Taylor Series method</b></h4></u>
           <h5><b>Please fill the input below</b></h5>
-          <label>&nbsp; f(x)</label>
+          <label htmlFor='fx'>f(x)</label>
           <br />
-          <input required type="text" name="fx" className="form-control" placeholder="Enter f(x)" style={{ borderRadius: "5px" }} defaultValue={displayEQ} />
+          <input required type="text" id="fx" data-testid='fx' name="fx" className="form-control" placeholder="Enter f(x)" style={{ borderRadius: "5px" }} onChange={inputfx} defaultValue={displayEQ} />
           <br />
-          <label>&nbsp; X value</label>
+          <label htmlFor='x'>X value</label>
           <br />
-          <input required type="number" step="0.01" name="x" className="form-control" placeholder="Enter X" style={{ borderRadius: "5px" }} defaultValue={Xin} />
+          <input required type="number" step="0.01" id='x' data-testid='x' name="x" className="form-control" placeholder="Enter X" style={{ borderRadius: "5px" }} onChange={inputX} />
           <br />
-          <label>&nbsp; X0 value</label>
+          <label htmlFor="x0">X0 value</label>
           <br />
-          <input required type="number" step="0.01" name="x0" className="form-control" placeholder="Enter X0" style={{ borderRadius: "5px" }} defaultValue={Xin} />
+          <input required type="number" step="0.01" id='x0' data-testid='x0' name="x0" className="form-control" placeholder="Enter X0" style={{ borderRadius: "5px" }} onChange={inputX0}/>
           <br />
-          <label>&nbsp; N value</label>
+          <label htmlFor='n'>N value</label>
           <br />
-          <input required type="number" step="0.01" name="n" className="form-control" placeholder="Enter N" style={{ borderRadius: "5px" }} defaultValue={Xin} />
+          <input required type="number" step="0.01" id='n' data-testid='n' name="n" className="form-control" placeholder="Enter N" style={{ borderRadius: "5px" }} onChange={inputN} />
           <br />
           <div className="taylor-child">
             <div style={{ width: "100px" }}>
-              <button className="btn btn-primary btn-block" id="btn-submit" style={{ backgroundColor: "#ad2e24", borderColor: "#540804", marginBottom: "5px" }} type="submit">Calculate</button>
+              <button className="btn btn-primary btn-block" id="btn-submit" style={{ backgroundColor: "#ad2e24", borderColor: "#540804", marginBottom: "5px" }} data-testid='calculate 'type="submit">Calculate</button>
             </div>
             <div>
               <button disabled className="btn btn-primary btn-block" id="btn-load" style={{ backgroundColor: "#ea8c55", borderColor: "#ffbe0b", marginBottom: "5px" }} onClick={() => { }}>Example</button>
-            </div>
-            <div>
-              <button className="btn btn-primary btn-block" id="btn-load" style={{ backgroundColor: "#000000", borderColor: "#000000", marginBottom: "10px" }}><Link to="/rootofequation">Back</Link></button>
             </div>
           </div>
         </form>
@@ -120,7 +131,7 @@ const Taylor: React.FC = () => {
               <div>
                 <h4><u><b>Result</b></u></h4>
                 <h5>Total iteration: {N}</h5>
-                <h5 style={{ color: "white" }}><b>Answer = {X.toPrecision(1)}</b></h5>
+                <div data-testid='ans'>Answer = {X.toPrecision(1)}</div>
               </div>
             </div>
           </div>
@@ -131,4 +142,4 @@ const Taylor: React.FC = () => {
   )
 }
 
-export default Taylor;
+export default TaylorSeries;
